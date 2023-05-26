@@ -92,7 +92,7 @@ class AES:
 
   def encrypt(self, plaintext):
     self.plain_state = text2matrix(plaintext)
-
+    
     self.__add_round_key(self.plain_state, self.round_keys[:4])
 
     for i in range(1, 10):
@@ -105,19 +105,19 @@ class AES:
     return matrix2text(self.plain_state)
 
   def decrypt(self, ciphertext):
-    self.plain_state = text2matrix(ciphertext)
+    self.cipher_state = text2matrix(ciphertext)
 
-    self.__add_round_key(self.plain_state, self.round_keys[-1:-5:-1])
+    self.__add_round_key(self.cipher_state, self.round_keys[40:])
+    self.__inv_shift_rows(self.cipher_state)
+    self.__inv_sub_bytes(self.cipher_state)
+
     for i in range(9, 0, -1):
-      self.__inv_shift_rows(self.plain_state)
-      self.__inv_sub_bytes(self.plain_state)
-      self.__add_round_key(self.plain_state, self.round_keys[4*i : 4*(i+1)])
-      self.__inv_mix_columns(self.plain_state)
-    self.__inv_shift_rows(self.plain_state)
-    self.__inv_sub_bytes(self.plain_state)
-    self.__add_round_key(self.plain_state, self.round_keys[0:4])
+        self.__round_decrypt(self.cipher_state, self.round_keys[4 * i : 4 * (i + 1)])
 
-    return matrix2text(self.plain_state)
+    self.__add_round_key(self.cipher_state, self.round_keys[:4])
+
+    return matrix2text(self.cipher_state)
+
 
   def __add_round_key(self, s, k):
     for i in range(4):
@@ -185,11 +185,11 @@ master_key = 0x2b7e151628aed2a6abf7158809cf4f3c
 AES_Mode = AES(master_key)
 
 plaintext = 0x3243f6a8885a308d313198a2e0370734
-encrypted = AES_Mode.encrypt(plaintext)
+encrypted = hex(AES_Mode.encrypt(plaintext))
 
-print('encrypted', hex(encrypted), '0x3925841d02dc09fbdc118597196a0b32')
+print('encrypted', encrypted, '0x3925841d02dc09fbdc118597196a0b32')
 
 ciphertext = 0x3925841d02dc09fbdc118597196a0b32
-decrypted = AES_Mode.decrypt(ciphertext)
+decrypted = hex(AES_Mode.decrypt(ciphertext))
 
-print('decrypted', hex(decrypted), '0x3243f6a8885a308d313198a2e0370734')
+print('decrypted', decrypted, '0x3243f6a8885a308d313198a2e0370734')
