@@ -184,12 +184,19 @@ class AES:
 master_key = 0x2b7e151628aed2a6abf7158809cf4f3c
 AES_Mode = AES(master_key)
 
-plaintext = 0x3243f6a8885a308d313198a2e0370734
-encrypted = hex(AES_Mode.encrypt(plaintext))
+text = "Mom, I love you!"
+plaintext = ''.join(hex(ord(c))[2:] for c in text)
+base16INT = int(plaintext, 16)
 
-print('encrypted', encrypted, '0x3925841d02dc09fbdc118597196a0b32')
+encrypted = hex(AES_Mode.encrypt(base16INT))
 
-ciphertext = 0x3925841d02dc09fbdc118597196a0b32
+print('encrypted', encrypted)
+
+ciphertext = int(encrypted, 16)
 decrypted = hex(AES_Mode.decrypt(ciphertext))
 
-print('decrypted', decrypted, '0x3243f6a8885a308d313198a2e0370734')
+print('decrypted',decrypted)
+
+hex_int = int(decrypted, 16)
+text = bytes.fromhex(hex(hex_int)[2:]).decode("utf-8")
+print(text)
